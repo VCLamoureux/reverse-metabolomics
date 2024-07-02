@@ -1,3 +1,3 @@
 # reverse-metabolomics
 
-This is a reposi.. for....
+This is a repository to perform reverse metabolomics 
