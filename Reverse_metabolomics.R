@@ -13,7 +13,7 @@ library(tidyverse)
 library(pheatmap)
 # Step 15
 ## Specify the folder path - it should be the folder inside the working directory 
-folder_path <- "/Users/vincentlamoureux/OneDrive - University of California, San Diego Health/Postdoc_UCSD/Postdoc_projects/Main_project/Nature_protocols/test/"
+folder_path <- "/Users/vincentlamoureux/OneDrive - University of California, San Diego Health/Postdoc_UCSD/Postdoc_projects/Main_project/Nature_protocols/FASST_MASST_search/"
 
 # Step 16
 ## Import the ReDU metadata file - it should be in the working directory folder and NOT be in the sub-folder with the csv files from the Fast Search
@@ -148,9 +148,11 @@ pivot_table_rodents <- prepare_pivot_table(df_rodents, variable, 'Compound')
 
 # Prepare the table to be compatible with pheatmap package
 humans_molecules_counts_by_bodypart <- pivot_table_humans |> 
+  dplyr::arrange(UBERONBodyPartName) |> 
   tibble::column_to_rownames("UBERONBodyPartName")
 # Prepare the table to be compatible with pheatmap package
-rodents_molecules_counts_by_bodypart <- pivot_table_rodents |> 
+rodents_molecules_counts_by_bodypart <- pivot_table_rodents |>
+  dplyr::arrange(UBERONBodyPartName) |> 
   tibble::column_to_rownames("UBERONBodyPartName")
 
 # Convert all columns to numeric for the humans df
@@ -282,7 +284,8 @@ grouped_df_humans_pivot_table <- grouped_df_humans |>
 
 # Merging 
 merged_DOID_humans <- left_join(grouped_df_humans_pivot_table, human_ReDU_DOIDCommonName, by = "DOIDCommonName")
-  
+merged_DOID_humans$DOIDCommonName <- gsub("Crohn's disease", "crohn's disease", merged_DOID_humans$DOIDCommonName)
+
 # Normalizing counts by the number of files available for each DOIDCommonName
 columns_to_normalize <- setdiff(names(merged_DOID_humans), c("DOIDCommonName", "DOIDCommonName_counts"))
   
@@ -306,10 +309,8 @@ merged_sum_humans_DOID_percentage <- merged_sum_humans_DOID |>
   
 # Remove the 'Sum' row
 merged_sum_humans_DOID_percentage <- merged_sum_humans_DOID_percentage |>
-  dplyr::filter(DOIDCommonName != "Sum")
-
-# Users can log or not the df
-merged_sum_humans_DOID_percentage <- merged_sum_humans_DOID_percentage |> 
+  dplyr::filter(DOIDCommonName != "Sum") |> 
+  dplyr::arrange(DOIDCommonName) |> 
   tibble::column_to_rownames("DOIDCommonName")
 
 # Get health phenotype information
