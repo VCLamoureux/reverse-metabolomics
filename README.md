@@ -17,4 +17,7 @@ The following packages shouls be installed:
 #### Python version
 The following packages shouls be installed: 
 - pandas
-- ...
+- numpy
+- seaborn
+- matplotlib
+  
