@@ -18,10 +18,12 @@ The installation time should be about 30 seconds
 
 #### Python version
 The following packages should be installed: 
-- pandas
-- numpy
-- seaborn
-- matplotlib
+- pandas >= 1.2
+- numpy >= 1.20, !=1.24.0
+- seaborn >= 0.13.2
+- matplotlib >= 3.4, !=3.6.1
+
+Installation can be performed using the `pip` installer with the command `pip install -r requirements.txt`. Make sure that the `requirements.txt` file is within the working directory when this is performed, or edit the command to include the path to this file. This command should either be entered within the terminal or a Jupyter notebook code cell. If entered within a code cell, the command should be prefaced with `!`.
 
 The installation time should be less than 20 seconds
 
