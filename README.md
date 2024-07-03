@@ -1,4 +1,4 @@
-# reverse-metabolomics
+# Reverse-metabolomics
 
 This is the code repository to perform reverse metabolomics.
 
