@@ -17,7 +17,8 @@ The following packages should be installed:
 The installation time should be about 30 seconds
 
 #### Python version
-The following packages should be installed: 
+A Python version >=3.8 is required.
+Additionally, the following packages should be installed: 
 - pandas >= 1.2
 - numpy >= 1.20, !=1.24.0
 - seaborn >= 0.13.2
