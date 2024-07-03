@@ -23,7 +23,7 @@ folder_path <- "/Users/vincentlamoureux/OneDrive - University of California, San
 ## Import the ReDU metadata file - it should be in the working directory folder and NOT be in the sub-folder with the csv files from the Fast Search
 ## Within the col_select parameter, we recommend only specifying the columns needed for a given analysis to minimize problems with memory limitations; the filename and NCBITaxonomy columns are likely to be always used
 ## If memory issues persist, we recommend reading in the metadata in chunks, performing the analysis desired on each chunk, and appropriately recombining the results at the end
-redu_metadata <- read_tsv(processed_redu_metadata, col_select = c("filename", "NCBITaxonomy", "UBERONBodyPartName", "DOIDCommonName"), show_col_types = FALSE)
+redu_metadata <- read_tsv("all_sampleinformation.tsv", col_select = c("filename", "NCBITaxonomy", "UBERONBodyPartName", "DOIDCommonName"), show_col_types = FALSE)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~TEMP CHANGE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # Step 17
 ## Get the list of all .csv files in the folder
