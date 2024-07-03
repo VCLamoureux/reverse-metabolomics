@@ -23,4 +23,5 @@ The following packages should be installed:
 - numpy
 - seaborn
 - matplotlib
-  
+
+The installation time should be about 30 seconds
