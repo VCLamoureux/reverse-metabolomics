@@ -13,6 +13,8 @@ The following packages should be installed:
 - data.table (>= 1.15.4)
 - tidyverse (>= 2.0.0)
 - pheatmap (>= 1.0.12)
+The installation time should be about 30 seconds
+
 
 #### Python version
 The following packages should be installed: 
