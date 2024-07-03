@@ -9,13 +9,13 @@ This code has been tested on `Apple MacBook Pro` Sonoma version 14.5 (specificat
 ----------------------------------------
 ### Installation guide
 #### R version
-The following packages shouls be installed: 
+The following packages should be installed: 
 - data.table (>= 1.15.4)
 - tidyverse (>= 2.0.0)
 - pheatmap (>= 1.0.12)
 
 #### Python version
-The following packages shouls be installed: 
+The following packages should be installed: 
 - pandas
 - numpy
 - seaborn
