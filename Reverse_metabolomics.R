@@ -17,7 +17,7 @@ folder_path <- "/Users/vincentlamoureux/OneDrive - University of California, San
 
 # Step 16
 ## Import the ReDU metadata file - it should be in the working directory folder and NOT be in the sub-folder with the csv files from the Fast Search
-redu_metadata <- fread("all_sampleinformation.tsv") This line was changed
+redu_metadata <- fread("all_sampleinformation.tsv")
 
 # Optional: In lieu of the previous fread() command, if memory issues occur or the program crashes, we recommend commenting out the previous command, uncommenting the line with the read_tsv() command, and following the instructions below
 ## Within the col_select parameter, we recommend only specifying the columns needed for a given analysis to minimize problems with memory limitations; the filename and NCBITaxonomy columns are likely to be always used
