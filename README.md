@@ -16,7 +16,6 @@ The following packages should be installed:
 
 The installation time should be about 30 seconds
 
-
 #### Python version
 The following packages should be installed: 
 - pandas
@@ -25,3 +24,9 @@ The following packages should be installed:
 - matplotlib
 
 The installation time should be less than 20 seconds
+
+For users new to Python, we recommend that the code be run on a cloud-based platform such as Google Colab, as this tends to make plot rendering easier and more standardized, in addition to providing the user with more memory, allowing for a greater portion of the metadata table to be read in at once
+
+
+
+It should be noted that package installation times may vary depending on the user's network latency and processor
