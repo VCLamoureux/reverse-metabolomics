@@ -24,4 +24,4 @@ The following packages should be installed:
 - seaborn
 - matplotlib
 
-The installation time should be about 30 seconds
+The installation time should be less than 20 seconds
