@@ -17,7 +17,7 @@ folder_path <- "/Users/vincentlamoureux/OneDrive - University of California, San
 
 # Step 16
 ## Import the ReDU metadata file - it should be in the working directory folder and NOT be in the sub-folder with the csv files from the Fast Search
-redu_metadata <- fread("all_sampleinformation-2.tsv")
+redu_metadata <- fread("all_sampleinformation.tsv")
 
 # Step 17
 ## Get the list of all .csv files in the folder
