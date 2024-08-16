@@ -1,30 +1,43 @@
 # Set your working directory
 setwd("/Users/vincentlamoureux/OneDrive - University of California, San Diego Health/Postdoc_UCSD/Postdoc_projects/Main_project/Nature_protocols/")
-# Step 13 
+# Step 12
 ## These packages are part of CRAN repository
 #install.packages("data.table", dependencies = TRUE)
 #install.packages("tidyverse", dependencies = TRUE)
 #install.packages("pheatmap", dependencies = TRUE)
 
-# Step 14 
+# Step 13 
 ## Load the packages required for the analysis
 library(data.table)
 library(tidyverse)
 library(pheatmap)
-# Step 15
-## Specify the folder path - it should be the folder inside the working directory 
-folder_path <- "/Users/vincentlamoureux/OneDrive - University of California, San Diego Health/Postdoc_UCSD/Postdoc_projects/Main_project/Nature_protocols/FASST_MASST_search/"
 
-# Step 16
-## Import the ReDU metadata file - it should be in the working directory folder and NOT be in the sub-folder with the csv files from the Fast Search
-redu_metadata <- fread("all_sampleinformation.tsv")
+# Step 14
+## Specify the folder path - it should be the folder inside the working directory 
+folder_path <- "/Users/vincentlamoureux/OneDrive - University of California, San Diego Health/Postdoc_UCSD/Postdoc_projects/Main_project/Nature_protocols/Victoria_FASST_search/"
+
+# Step 15
+## Download/Import the ReDU metadata file - it should be in the working directory folder and NOT be in the sub-folder with the csv files from the Fast Search
+
+# Define the filename for the ReDU metadata
+processed_redu_metadata <- "all_sampleinformation.tsv"
+
+# Check if the pre-processed metadata file exists in the working directory
+if (!file.exists(file.path(getwd(), processed_redu_metadata))) {
+  redu_url <- "https://redu.gnps2.org/dump"
+  options(timeout = 600) # If 10 min is not enough, add more time 
+  download.file(redu_url, file.path(getwd(), processed_redu_metadata), mode = "wb")
+  redu_metadata <- data.table::fread(processed_redu_metadata)
+} else {
+  redu_metadata <- data.table::fread(processed_redu_metadata)
+}
 
 # Optional: In lieu of the previous fread() command, if memory issues occur or the program crashes, we recommend commenting out the previous command, uncommenting the line with the read_tsv() command, and following the instructions below
 ## Within the col_select parameter, we recommend only specifying the columns needed for a given analysis to minimize problems with memory limitations; the filename and NCBITaxonomy columns are likely to be always used
 ## If memory issues persist, we recommend reading in the metadata in chunks, performing the analysis desired on each chunk, and appropriately recombining the results at the end
-## redu_metadata <- read_tsv("all_sampleinformation.tsv", col_select = c("filename", "NCBITaxonomy", "UBERONBodyPartName", "DOIDCommonName", "HealthStatus", "BiologicalSex", "LifeStage"), show_col_types = FALSE)
+### redu_metadata <- readr::read_tsv("all_sampleinformation.tsv", col_select = c("filename", "NCBITaxonomy", "UBERONBodyPartName", "DOIDCommonName", "HealthStatus", "BiologicalSex", "LifeStage"), show_col_types = FALSE)
 
-# Step 17
+# Step 16
 ## Get the list of all .csv files in the folder
 file_list <- list.files(folder_path, pattern = "*.csv", full.names = TRUE)
 
@@ -35,7 +48,7 @@ df_list <- lapply(file_list, function(file) {
   return(df)
 })
 
-# Step 18
+# Step 17
 ## Combine all dfs into a single df
 molecules_interest <- bind_rows(df_list)
 
@@ -48,26 +61,27 @@ MassiveID_filename <- function(USI) {
 }
 
 # Apply the function to each row of the USI column in the molecules_interest
-molecules_interest$USI <- sapply(molecules_interest$USI, MassiveID_filename)
+molecules_interest$USI <- vapply(molecules_interest$USI, MassiveID_filename, FUN.VALUE = character(1))
 
-# Prepare the ReDU metadata filename column for merging with FASST MASST output table
-redu_metadata$filename <- gsub("/", ":", redu_metadata$filename)
-redu_metadata$filename <- substring(redu_metadata$filename, 3)
-redu_metadata$filename <- gsub(".mzXML","", redu_metadata$filename)
-redu_metadata$filename <- gsub(".mzML","", redu_metadata$filename)
+# Prepare the ReDU metadata USI column for merging with FASST MASST output table
+redu_metadata_filtered <- redu_metadata |> 
+  dplyr::filter(str_detect(USI, "\\.mzML|\\.mzXML"))
+redu_metadata_filtered$USI <- gsub("/", ":", redu_metadata_filtered$USI)
+redu_metadata_filtered$USI <- gsub(".mzXML","", redu_metadata_filtered$USI)
+redu_metadata_filtered$USI <- gsub(".mzML","", redu_metadata_filtered$USI)
 
 # Create a function to extract the datasetID and the last segment (filename)
-ReDU_filename <- function(filename) {
-  parts <- unlist(strsplit(filename, ":"))
-  paste(parts[1], parts[length(parts)], sep = ":")
+ReDU_USI <- function(USI) {
+  parts <- unlist(strsplit(USI, ":"))
+  paste(parts[2], parts[length(parts)], sep = ":")
 }
 
 # Apply the function to each row of the filename column in the ReDU output table
-redu_metadata$filename <- sapply(redu_metadata$filename, ReDU_filename)
+redu_metadata_filtered$USI <- vapply(redu_metadata_filtered$USI, ReDU_USI, FUN.VALUE = character(1))
 
 # Step 20
 ## Merge the ReDU metadata table and the FASST MASST output table
-ReDU_MASST <- left_join(molecules_interest, redu_metadata, by = c("USI" = "filename"), relationship = "many-to-many")
+ReDU_MASST <- left_join(molecules_interest, redu_metadata_filtered, by = "USI", relationship = "many-to-many")
 
 # Once both data tables are merged, ones can filter the table which based on the research question
 ## To note: not all publicly available files have associated metadata and we strongly encourage scientists to make 
@@ -101,15 +115,15 @@ df_rodents <- ReDU_MASST_standardize |>
 analyze_counts <- function(df, column_interest) {
   
 # Create a list of all unique entries in the column of interest and create a df
-  df_body_parts <- distinct(df, .data[[column_interest]])
+  df_body_parts <- df |>  distinct(across(all_of(column_interest)))
   
   # Count occurrences of each entry in the column of interest
   df_BodyPartName_counts <- df |> 
-    count(.data[[column_interest]], name = "Counts_fastMASST")
+    count(across(all_of(column_interest)), name = "Counts_fastMASST")
   
   # Aggregate the number and list of unique Compounds for each entry
   compounds <- df |> 
-    group_by(.data[[column_interest]]) |> 
+    group_by(across(all_of(column_interest))) |> 
     summarise(Compounds = n_distinct(Compound),
               CompoundsList = toString(unique(Compound))) |> 
     ungroup()
@@ -131,19 +145,17 @@ head(body_counts_rodents)
 
 # Step 26
 ## Create a function to pivot the table for data visualization
-
 prepare_pivot_table <- function(df, column_interest, compound) {
   
   grouped_df <- df |> 
-    group_by(.data[[compound]], .data[[column_interest]]) |> 
+    group_by(across(all_of(c(compound, column_interest)))) |> 
     summarise(Count = n(), .groups = 'drop')
   
   pivot_table <- grouped_df |> 
-    pivot_wider(names_from = .data[[compound]], values_from = Count, values_fill = list(Count = 0))
+    pivot_wider(names_from = all_of(compound), values_from = Count, values_fill = list(Count = 0))
   
   return(pivot_table)
 }
-
 
 # Define the variables based on your research question 
 ## Here we are interesting in organ distribution in humans and rodents of the molecule of interest
@@ -281,7 +293,8 @@ Rodents_ReDU_BiologicalSex$BiologicalSex_counts <- as.numeric(Rodents_ReDU_Biolo
 #### Here we are interested in finding disease association
 grouped_df_humans <- df_humans |>
   group_by(Compound, DOIDCommonName) |>  
-  summarise(Count = n(), .groups = 'drop') #|> 
+  summarise(Count = n()) |> 
+  ungroup() #|> 
   #dplyr::filter(Count >= 3)
 
 grouped_df_humans_pivot_table <- grouped_df_humans |>
@@ -313,14 +326,14 @@ merged_sum_humans_DOID_percentage <- merged_sum_humans_DOID |>
   dplyr::mutate(across(all_of(columns_to_normalize), ~ .x / .x[n()] * 100))
   
 # Remove the 'Sum' row
-merged_sum_humans_DOID_percentage <- merged_sum_humans_DOID_percentage |>
+merged_sum_humans_DOID_percentage_plot <- merged_sum_humans_DOID_percentage |>
   dplyr::filter(DOIDCommonName != "Sum") |> 
   dplyr::arrange(DOIDCommonName) |> 
   tibble::column_to_rownames("DOIDCommonName")
 
 # Get health phenotype information
 ## If one MS/MS spectrum is used in reverse metabolomics, the cluster_rows and cluster_cols should be set to FALSE
-Diseases_humans <-pheatmap(merged_sum_humans_DOID_percentage,
+Diseases_humans <-pheatmap(merged_sum_humans_DOID_percentage_plot,
          color = gradient_colors,
          cluster_rows = FALSE,
          cluster_cols = TRUE,
