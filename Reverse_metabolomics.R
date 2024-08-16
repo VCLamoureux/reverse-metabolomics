@@ -14,7 +14,7 @@ library(pheatmap)
 
 # Step 14
 ## Specify the folder path - it should be the folder inside the working directory 
-folder_path <- "/Users/vincentlamoureux/OneDrive - University of California, San Diego Health/Postdoc_UCSD/Postdoc_projects/Main_project/Nature_protocols/Victoria_FASST_search/"
+folder_path <- "/Users/vincentlamoureux/OneDrive - University of California, San Diego Health/Postdoc_UCSD/Postdoc_projects/Main_project/Nature_protocols/FASST_search/"
 
 # Step 15
 ## Download/Import the ReDU metadata file - it should be in the working directory folder and NOT be in the sub-folder with the csv files from the Fast Search
