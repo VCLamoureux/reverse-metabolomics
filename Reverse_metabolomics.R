@@ -57,7 +57,10 @@ molecules_interest <- bind_rows(df_list)
 ### Create a function to extract the desired segment from the USI column
 MassiveID_filename <- function(USI) {
   parts <- unlist(strsplit(USI, ":"))
-  paste(parts[2], parts[3], sep = ":")
+  combined <- paste(parts[2], parts[3], sep = ":")
+  # Remove was is following the last dot
+  combined_no_dot <- sub("\\.[^\\.]*$", "", combined)
+  return(combined_no_dot)
 }
 
 # Apply the function to each row of the USI column in the molecules_interest
